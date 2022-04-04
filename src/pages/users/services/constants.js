@@ -1,0 +1,7 @@
+export const FETCH_RANDOM_USERS = 'FETCH_RANDOM_USERS';
+export const SET_GENDER_URLS = 'SET_GENDER_URLS';
+export const SET_NAT_URLS = 'SET_NAT_URLS';
+export const SET_LOADING_USERS = 'SET_LOADING_USERS';
+
+
+
