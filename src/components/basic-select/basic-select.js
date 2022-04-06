@@ -31,7 +31,7 @@ const BasicSelect = () => {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={gender}
-                    label="Age"
+                    label="Gender"
                     onChange={handleChange}
                 >
                     <MenuItem value={'male'}>Male</MenuItem>

@@ -18,6 +18,7 @@ export const getRandomUsers = () => async (dispatch, getState) => {
 };
 
 export const filterUsers = (urlGender, urlNationality) => async (dispatch, getState) => {
+    dispatch({type: SET_LOADING_USERS, payload: true});
 
     if(urlGender === '' && urlNationality === '') {
         const users = await axios.get(`${API_ROOT}/?results=15`)
