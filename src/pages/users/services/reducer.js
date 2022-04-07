@@ -1,15 +1,13 @@
 import {
     FETCH_RANDOM_USERS,
-    SET_GENDER_URLS,
-    SET_NAT_URLS,
-    SET_LOADING_USERS
+    SET_LOADING_USERS,
+    SET_FULL_URL
 } from './constants';
 
 const initialState = {
     isLoading: false,
     users: [],
-    genderUrl: '',
-    natUrl: []
+    fullUrl: {}
 };
 
 export default (state = initialState, action) => {
@@ -27,16 +25,10 @@ export default (state = initialState, action) => {
                 isLoading: false
             };
         }
-        case SET_GENDER_URLS: {
+        case SET_FULL_URL: {
             return {
                 ...state,
-                genderUrl: action.payload
-            };
-        }
-        case SET_NAT_URLS: {
-            return {
-                ...state,
-                natUrl: action.payload
+                fullUrl: action.payload
             };
         }
         default:

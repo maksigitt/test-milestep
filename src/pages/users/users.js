@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import {filterUsers, getRandomUsers, setGenderUrl, setNatUrl} from "./services/action";
+import {filterUsers, getRandomUsers, setFullUrl} from "./services/action";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -22,9 +22,8 @@ import MultiSelect from "../../components/multi-select";
 const Users = () => {
     const dispatch = useDispatch();
     const {users: {results}} = useSelector(state => state.usersReducer);
-    const {genderUrl} = useSelector(state => state.usersReducer);
-    const {natUrl} = useSelector(state => state.usersReducer);
     const {isLoading} = useSelector(state => state.usersReducer);
+    const {fullUrl} = useSelector(state => state.usersReducer);
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -34,8 +33,12 @@ const Users = () => {
         if (location.search !== '') {
             const gender = searchParams.get("gender") ? searchParams.get("gender") : '';
             const nat = searchParams.get("nat") ? searchParams.get("nat") : [];
-            dispatch(setGenderUrl(gender))
-            dispatch(setNatUrl(nat.length > 0 ? nat.split(',') : []))
+            dispatch(setFullUrl(
+                {
+                    gender,
+                    nat
+                }
+            ))
             dispatch(filterUsers(location.search))
         } else {
             dispatch(getRandomUsers());
@@ -44,8 +47,16 @@ const Users = () => {
     }, []);
 
     const handleFilter = () => {
-        navigate((genderUrl.trim() === '' || genderUrl.includes('all') ? '?' : `/?gender=${genderUrl}`) + (natUrl.length > 0 ? `&nat=${natUrl.join()}` : ''))
-        dispatch(filterUsers(genderUrl.trim() === '' ? '' : `gender=${genderUrl}`, natUrl.length > 0 ? `nat=${natUrl.join()}` : ''))
+        let path = ''
+        Object.keys(fullUrl).map((item, i) => {
+            if (i === 0 && fullUrl[item] !== '') {
+                path = '?' + item + '=' + fullUrl[item]
+            } else if (fullUrl[item] !== '') {
+                path = path + '&' + item + '=' + fullUrl[item]
+            }
+        })
+        navigate(path)
+        dispatch(filterUsers(path))
     }
 
     return (
@@ -59,10 +70,14 @@ const Users = () => {
             <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
                 <Grid container spacing={3} sx={{mb: 4}}>
                     <Grid item xs={12} md={3} lg={3}>
-                        <BasicSelect/>
+                        <BasicSelect
+                            currentURL='gender'
+                        />
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
-                        <MultiSelect/>
+                        <MultiSelect
+                            currentURL='nat'
+                        />
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}
                           sx={{
@@ -74,55 +89,60 @@ const Users = () => {
                         <Button
                             variant="contained"
                             onClick={handleFilter}
-                            disabled={genderUrl === '' && natUrl.length === 0}
+                            disabled={Object.keys(fullUrl).length === 0}
                         >Apply Filters</Button>
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={3}>
-                    {
-                        isLoading
-                            ?
-                            'Loading Users ...'
-                            :
-                            results && results.map((item, i) => {
-                                return <Grid key={i} item xs={6} md={2} lg={2}>
-                                    <Card sx={{
-                                        padding: '8px',
-                                        height: '300px'
-                                    }}>
-                                        <CardMedia
-                                            component="img"
-                                            height='100'
-                                            image={item.picture.medium}
-                                            alt="green iguana"
-                                            sx={{
-                                                objectFit: 'contain'
-                                            }}
-                                        />
-                                        <CardContent>
-                                            <Typography gutterBottom variant="h6" component="div">
-                                                {item.name.first} {item.name.last}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {item.gender}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {dateFormat(new Date(item.dob.date), 'dd-mm-yyyy')}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {item.dob.age} age
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {item.nat}
-                                            </Typography>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            })
-                    }
+                {
+                    isLoading
+                        ?
+                        <Typography variant="h6" component="div">
+                            Loading Users ...
+                        </Typography>
+                        :
+                        <Grid container spacing={3}>
+                            {
 
-                </Grid>
+                                results && results.map((item, i) => {
+                                    return <Grid key={i} item xs={6} sm={4} md={2} lg={2}>
+                                        <Card sx={{
+                                            padding: '8px',
+                                            height: '300px'
+                                        }}>
+                                            <CardMedia
+                                                component="img"
+                                                height='100'
+                                                image={item.picture.medium}
+                                                alt="green iguana"
+                                                sx={{
+                                                    objectFit: 'contain'
+                                                }}
+                                            />
+                                            <CardContent>
+                                                <Typography gutterBottom variant="h6" component="div">
+                                                    {item.name.first} {item.name.last}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {item.gender}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {dateFormat(new Date(item.dob.date), 'dd-mm-yyyy')}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {item.dob.age} age
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {item.nat}
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                })
+                            }
+
+                        </Grid>
+                }
             </Container>
         </Box>
     );

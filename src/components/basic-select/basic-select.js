@@ -4,23 +4,32 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-
 import {useDispatch, useSelector} from "react-redux";
-import {setGenderUrl} from "../../pages/users/services/action";
+import {setFullUrl} from "../../pages/users/services/action";
 
 
-const BasicSelect = () => {
+
+const BasicSelect = ({currentURL}) => {
     const [gender, setGender] = React.useState('');
     const dispatch = useDispatch();
-    const {genderUrl} = useSelector(state => state.usersReducer);
+    const {fullUrl} = useSelector(state => state.usersReducer);
 
     useEffect(() => {
-        setGender(genderUrl)
-    }, [genderUrl]);
+        setGender(fullUrl.gender)
+    }, [fullUrl]);
 
     const handleChange = (event) => {
         setGender(event.target.value)
-        dispatch(setGenderUrl(event.target.value))
+        if (event.target.value !== 'all') {
+            dispatch(setFullUrl(
+                {
+                    ...fullUrl,
+                    [currentURL]: event.target.value,
+                }
+            ))
+        } else {
+            delete fullUrl.gender
+        }
     };
 
     return (
@@ -30,7 +39,7 @@ const BasicSelect = () => {
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={gender}
+                    value={gender || ''}
                     label="Gender"
                     onChange={handleChange}
                 >

@@ -5,7 +5,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import {setNatUrl} from "../../pages/users/services/action";
+import {setFullUrl} from "../../pages/users/services/action";
 import {useDispatch, useSelector} from "react-redux";
 
 const ITEM_HEIGHT = 48;
@@ -32,15 +32,15 @@ function getStyles(name, personNat, theme) {
     };
 }
 
-export default function MultiSelect() {
+export default function MultiSelect({currentURL}) {
     const theme = useTheme();
     const [personNat, setPersonNat] = React.useState([]);
     const dispatch = useDispatch();
-    const {natUrl} = useSelector(state => state.usersReducer);
+    const {fullUrl} = useSelector(state => state.usersReducer);
 
     useEffect(() => {
-        setPersonNat(natUrl)
-    }, [natUrl]);
+        setPersonNat(fullUrl.hasOwnProperty('nat') && fullUrl.nat.length !== 0 ? fullUrl?.nat.split(',') : [])
+    }, [fullUrl.nat]);
 
     const handleChange = (event) => {
 
@@ -51,12 +51,22 @@ export default function MultiSelect() {
         setPersonNat(
             value
         );
-        dispatch(setNatUrl(value))
+
+        if (event.target.value.length === 0) {
+            delete fullUrl.nat
+        } else {
+            dispatch(setFullUrl(
+                {
+                    ...fullUrl,
+                    [currentURL]: event.target.value.length === 0 ? [] : event.target.value.join(','),
+                }
+            ))
+        }
     };
 
     return (
         <div>
-            <FormControl sx={{width: 300}}>
+            <FormControl sx={{width: '100%'}}>
                 <InputLabel id="demo-multiple-name-label">Nationality</InputLabel>
                 <Select
                     labelId="demo-multiple-name-label"
