@@ -1,6 +1,0 @@
-export const FETCH_RANDOM_USERS = 'FETCH_RANDOM_USERS';
-export const SET_LOADING_USERS = 'SET_LOADING_USERS';
-export const SET_FULL_URL = 'SET_FULL_URL';
-
-
-

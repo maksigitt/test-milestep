@@ -1,9 +1,8 @@
-import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import {filterUsers, getRandomUsers, setFullUrl} from "./services/action";
+import {fetchUsers} from "./services/action";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -20,43 +19,76 @@ import MultiSelect from "../../components/multi-select";
 
 
 const Users = () => {
-    const dispatch = useDispatch();
-    const {users: {results}} = useSelector(state => state.usersReducer);
-    const {isLoading} = useSelector(state => state.usersReducer);
-    const {fullUrl} = useSelector(state => state.usersReducer);
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
+    const [users, setUsers] = useState([]);
+    const [fullUrl, setFullUrl] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
 
     useEffect(() => {
         if (location.search !== '') {
             const gender = searchParams.get("gender") ? searchParams.get("gender") : '';
             const nat = searchParams.get("nat") ? searchParams.get("nat") : [];
-            dispatch(setFullUrl(
-                {
-                    gender,
-                    nat
-                }
-            ))
-            dispatch(filterUsers(location.search))
+            setFullUrl({
+                gender,
+                nat
+            })
+            fetchUsers({
+                gender,
+                nat
+            })
+                .then((data) => {
+                    setUsers(data.results)
+                    setIsLoading(false)
+                });
         } else {
-            dispatch(getRandomUsers());
+            fetchUsers({})
+                .then((data) => {
+                    setUsers(data.results)
+                    setIsLoading(false)
+                });
         }
-
     }, []);
 
+    const getFullUrl = (currentURL, event, key) => {
+        if (key) {
+            delete fullUrl[key]
+        } else if (Array.isArray(event.target.value)) {
+            setFullUrl(
+                {
+                    ...fullUrl,
+                    [currentURL]: event.target.value.length === 0 ? [] : event.target.value.join(','),
+                }
+            )
+        } else {
+            setFullUrl(
+                {
+                    ...fullUrl,
+                    [currentURL]: event.target.value
+                }
+            )
+        }
+    }
+
+
     const handleFilter = () => {
+        setIsLoading(false)
         let path = ''
         Object.keys(fullUrl).map((item, i) => {
-            if (i === 0 && fullUrl[item] !== '') {
+            if (i === 0 && fullUrl[item] !== '' && fullUrl[item].length !== 0) {
                 path = '?' + item + '=' + fullUrl[item]
-            } else if (fullUrl[item] !== '') {
+            } else if (fullUrl[item] !== '' && fullUrl[item].length !== 0) {
                 path = path + '&' + item + '=' + fullUrl[item]
             }
         })
         navigate(path)
-        dispatch(filterUsers(path))
+        fetchUsers(fullUrl)
+            .then((data) => {
+                setUsers(data.results)
+                setIsLoading(false)
+            })
     }
 
     return (
@@ -72,11 +104,15 @@ const Users = () => {
                     <Grid item xs={12} md={3} lg={3}>
                         <BasicSelect
                             currentURL='gender'
+                            getFullUrl={getFullUrl}
+                            fullUrl={fullUrl}
                         />
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <MultiSelect
                             currentURL='nat'
+                            getFullUrl={getFullUrl}
+                            fullUrl={fullUrl}
                         />
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}
@@ -103,8 +139,7 @@ const Users = () => {
                         :
                         <Grid container spacing={3}>
                             {
-
-                                results && results.map((item, i) => {
+                                users && users.map((item, i) => {
                                     return <Grid key={i} item xs={6} sm={4} md={2} lg={2}>
                                         <Card sx={{
                                             padding: '8px',

@@ -4,31 +4,21 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import {useDispatch, useSelector} from "react-redux";
-import {setFullUrl} from "../../pages/users/services/action";
 
 
-
-const BasicSelect = ({currentURL}) => {
+const BasicSelect = ({currentURL, getFullUrl, fullUrl}) => {
     const [gender, setGender] = React.useState('');
-    const dispatch = useDispatch();
-    const {fullUrl} = useSelector(state => state.usersReducer);
 
     useEffect(() => {
-        setGender(fullUrl.gender)
+        setGender(fullUrl[currentURL])
     }, [fullUrl]);
 
     const handleChange = (event) => {
         setGender(event.target.value)
         if (event.target.value !== 'all') {
-            dispatch(setFullUrl(
-                {
-                    ...fullUrl,
-                    [currentURL]: event.target.value,
-                }
-            ))
+            getFullUrl(currentURL, event)
         } else {
-            delete fullUrl.gender
+            getFullUrl(currentURL, event, currentURL)
         }
     };
 

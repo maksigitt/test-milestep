@@ -5,8 +5,6 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import {setFullUrl} from "../../pages/users/services/action";
-import {useDispatch, useSelector} from "react-redux";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -32,35 +30,21 @@ function getStyles(name, personNat, theme) {
     };
 }
 
-export default function MultiSelect({currentURL}) {
+export default function MultiSelect({currentURL, getFullUrl, fullUrl}) {
     const theme = useTheme();
     const [personNat, setPersonNat] = React.useState([]);
-    const dispatch = useDispatch();
-    const {fullUrl} = useSelector(state => state.usersReducer);
 
     useEffect(() => {
-        setPersonNat(fullUrl.hasOwnProperty('nat') && fullUrl.nat.length !== 0 ? fullUrl?.nat.split(',') : [])
-    }, [fullUrl.nat]);
+        setPersonNat(fullUrl.hasOwnProperty(currentURL) && fullUrl[currentURL].length !== 0 ? fullUrl[currentURL].split(',') : [])
+    }, [fullUrl[currentURL]]);
 
     const handleChange = (event) => {
-
-        const {
-            target: {value},
-        } = event;
-
-        setPersonNat(
-            value
-        );
+        setPersonNat(event.target.value);
 
         if (event.target.value.length === 0) {
-            delete fullUrl.nat
+            getFullUrl(currentURL, event, currentURL)
         } else {
-            dispatch(setFullUrl(
-                {
-                    ...fullUrl,
-                    [currentURL]: event.target.value.length === 0 ? [] : event.target.value.join(','),
-                }
-            ))
+            getFullUrl(currentURL, event)
         }
     };
 
