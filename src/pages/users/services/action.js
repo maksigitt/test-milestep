@@ -2,15 +2,23 @@ import axios from 'axios';
 
 import {API_ROOT} from '../../../helpers/constants';
 
-export const fetchUsers = async (params) => {
+export const fetchUsers = async (defaultParams = {}) => {
 
-    if (Object.keys(params).length !== 0) {
-        const users = await axios.get(`${API_ROOT}`, {params})
-        return users.data
-    } else {
-        const users = await axios.get(`${API_ROOT}`, {params: {results: 15}});
-        return users.data
+    const params = {
+        results: 15,
+        ...defaultParams,
     }
+
+    const users = await axios.get(`${API_ROOT}/`, {params})
+        .then((res) => ({
+            error: null,
+            data: res.data,
+        }))
+        .catch((error) => ({
+            error: error.message,
+            data: null,
+        }))
+    return users
 };
 
 

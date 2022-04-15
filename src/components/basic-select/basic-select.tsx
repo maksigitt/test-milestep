@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,20 +6,27 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 
-const BasicSelect = ({currentURL, getFullUrl, fullUrl}) => {
-    const [gender, setGender] = React.useState('');
+interface BasicSelectProps {
+    currentKey: string;
+    currentUrl: {};
+    list: { name: string; value: string; }[];
+    gender: string | null;
+    handleParams: any;
+}
 
-    useEffect(() => {
-        setGender(fullUrl[currentURL])
-    }, [fullUrl]);
+interface ItemProps {
+    name: string,
+    value: string,
+}
 
-    const handleChange = (event) => {
-        setGender(event.target.value)
-        if (event.target.value !== 'all') {
-            getFullUrl(currentURL, event)
-        } else {
-            getFullUrl(currentURL, event, currentURL)
-        }
+
+const BasicSelect = ({currentKey, currentUrl, list, gender, handleParams}: BasicSelectProps) => {
+
+    const handleChange = (event: any) => {
+        handleParams({
+            ...currentUrl,
+            [currentKey]: event.target.value
+        })
     };
 
     return (
@@ -33,9 +40,11 @@ const BasicSelect = ({currentURL, getFullUrl, fullUrl}) => {
                     label="Gender"
                     onChange={handleChange}
                 >
-                    <MenuItem value={'male'}>Male</MenuItem>
-                    <MenuItem value={'female'}>Female</MenuItem>
-                    <MenuItem value={'all'}>All</MenuItem>
+                    {
+                        list.map((item:ItemProps, i) => {
+                            return <MenuItem key={i} value={item.value}>{item.name}</MenuItem>
+                        })
+                    }
                 </Select>
             </FormControl>
         </Box>

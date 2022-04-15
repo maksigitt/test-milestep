@@ -12,83 +12,70 @@ import BasicSelect from "../../components/basic-select";
 import Button from '@mui/material/Button';
 import {
     useNavigate,
-    useLocation,
-    useSearchParams
+    useSearchParams,
 } from "react-router-dom";
 import MultiSelect from "../../components/multi-select";
+import {createUrlSearchParams, genderList, natList} from "../../helpers/helpers";
+
+interface FormDataProps {
+    gender: string;
+    nat: [];
+}
+
+interface itemProps {
+    gender: string,
+    nat: string,
+    email: string,
+    dob: {
+        date: string,
+        age: number
+    }
+    picture: {
+        medium: string
+    }
+    name: {
+        first: string,
+        last: string,
+    }
+}
 
 
 const Users = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
     const [users, setUsers] = useState([]);
-    const [fullUrl, setFullUrl] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const gender = searchParams.get("gender");
+    const nat = searchParams.get("nat");
 
 
     useEffect(() => {
-        if (location.search !== '') {
-            const gender = searchParams.get("gender") ? searchParams.get("gender") : '';
-            const nat = searchParams.get("nat") ? searchParams.get("nat") : [];
-            setFullUrl({
-                gender,
-                nat
-            })
-            fetchUsers({
-                gender,
-                nat
-            })
-                .then((data) => {
-                    setUsers(data.results)
-                    setIsLoading(false)
-                });
-        } else {
-            fetchUsers({})
-                .then((data) => {
-                    setUsers(data.results)
-                    setIsLoading(false)
-                });
+        async function fetchMyAPI() {
+            const {error, data} = await fetchUsers({gender, nat})
+            if (!error) {
+                setIsLoading(false)
+                setUsers(data.results)
+            }
         }
+
+        fetchMyAPI()
     }, []);
 
-    const getFullUrl = (currentURL, event, key) => {
-        if (key) {
-            delete fullUrl[key]
-        } else if (Array.isArray(event.target.value)) {
-            setFullUrl(
-                {
-                    ...fullUrl,
-                    [currentURL]: event.target.value.length === 0 ? [] : event.target.value.join(','),
-                }
-            )
-        } else {
-            setFullUrl(
-                {
-                    ...fullUrl,
-                    [currentURL]: event.target.value
-                }
-            )
-        }
+
+    const setUrlSearchParams = (formData: FormDataProps) => {
+        const urlSearchParams = createUrlSearchParams(formData)
+        navigate(`/?${urlSearchParams.toString()}`)
     }
 
 
-    const handleFilter = () => {
+    const handleFilter = async () => {
         setIsLoading(false)
-        let path = ''
-        Object.keys(fullUrl).map((item, i) => {
-            if (i === 0 && fullUrl[item] !== '' && fullUrl[item].length !== 0) {
-                path = '?' + item + '=' + fullUrl[item]
-            } else if (fullUrl[item] !== '' && fullUrl[item].length !== 0) {
-                path = path + '&' + item + '=' + fullUrl[item]
-            }
-        })
-        navigate(path)
-        fetchUsers(fullUrl)
-            .then((data) => {
-                setUsers(data.results)
-                setIsLoading(false)
-            })
+
+        const {error, data} = await fetchUsers({gender, nat})
+        if (!error) {
+            setIsLoading(false)
+            setUsers(data.results)
+        }
     }
 
     return (
@@ -103,16 +90,20 @@ const Users = () => {
                 <Grid container spacing={3} sx={{mb: 4}}>
                     <Grid item xs={12} md={3} lg={3}>
                         <BasicSelect
-                            currentURL='gender'
-                            getFullUrl={getFullUrl}
-                            fullUrl={fullUrl}
+                            currentKey='gender'
+                            currentUrl={{gender, nat}}
+                            list={genderList}
+                            gender={gender}
+                            handleParams={setUrlSearchParams}
                         />
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <MultiSelect
-                            currentURL='nat'
-                            getFullUrl={getFullUrl}
-                            fullUrl={fullUrl}
+                            currentKey='nat'
+                            currentUrl={{gender, nat}}
+                            nat={nat}
+                            handleParams={setUrlSearchParams}
+                            list={natList}
                         />
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}
@@ -125,7 +116,7 @@ const Users = () => {
                         <Button
                             variant="contained"
                             onClick={handleFilter}
-                            disabled={Object.keys(fullUrl).length === 0}
+                            disabled={nat === gender}
                         >Apply Filters</Button>
                     </Grid>
                 </Grid>
@@ -139,7 +130,7 @@ const Users = () => {
                         :
                         <Grid container spacing={3}>
                             {
-                                users && users.map((item, i) => {
+                                users && users.map((item: itemProps, i) => {
                                     return <Grid key={i} item xs={6} sm={4} md={2} lg={2}>
                                         <Card sx={{
                                             padding: '8px',

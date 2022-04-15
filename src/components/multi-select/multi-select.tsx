@@ -1,5 +1,4 @@
-import React, {useEffect} from 'react';
-import {useTheme} from '@mui/material/styles';
+import React from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -17,35 +16,22 @@ const MenuProps = {
     },
 };
 
-const names = [
-    'au', 'br', 'ca', 'ch', 'de', 'dk', 'es', 'fi', 'fr', 'gb', 'ie', 'ir', 'no', 'nl', 'nz', 'tr', 'us'
-];
-
-function getStyles(name, personNat, theme) {
-    return {
-        fontWeight:
-            personNat.indexOf(name) === -1
-                ? theme.typography.fontWeightRegular
-                : theme.typography.fontWeightMedium,
-    };
+interface MultiSelectProps {
+    currentKey: string;
+    currentUrl: {};
+    list: string[];
+    nat: string | null;
+    handleParams: any;
 }
 
-export default function MultiSelect({currentURL, getFullUrl, fullUrl}) {
-    const theme = useTheme();
-    const [personNat, setPersonNat] = React.useState([]);
+export default function MultiSelect({currentKey, currentUrl, nat, list, handleParams}: MultiSelectProps) {
 
-    useEffect(() => {
-        setPersonNat(fullUrl.hasOwnProperty(currentURL) && fullUrl[currentURL].length !== 0 ? fullUrl[currentURL].split(',') : [])
-    }, [fullUrl[currentURL]]);
+    const handleChange = (event: any) => {
+        handleParams({
+            ...currentUrl,
+            [currentKey]: event.target.value,
+        })
 
-    const handleChange = (event) => {
-        setPersonNat(event.target.value);
-
-        if (event.target.value.length === 0) {
-            getFullUrl(currentURL, event, currentURL)
-        } else {
-            getFullUrl(currentURL, event)
-        }
     };
 
     return (
@@ -56,16 +42,15 @@ export default function MultiSelect({currentURL, getFullUrl, fullUrl}) {
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     multiple
-                    value={personNat}
+                    value={nat !== null ? nat.split(',') : []}
                     onChange={handleChange}
                     input={<OutlinedInput label="Nationality"/>}
                     MenuProps={MenuProps}
                 >
-                    {names.map((name) => (
+                    {list.map((name) => (
                         <MenuItem
                             key={name}
                             value={name}
-                            style={getStyles(name, personNat, theme)}
                         >
                             {name}
                         </MenuItem>
