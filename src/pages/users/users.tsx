@@ -2,12 +2,11 @@ import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import {fetchUsers} from "./services/action";
+import {fetchUsers} from "../../Services/user";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import dateFormat from "dateformat";
 import BasicSelect from "../../components/basic-select";
 import Button from '@mui/material/Button';
 import {
@@ -131,6 +130,8 @@ const Users = () => {
                         <Grid container spacing={3}>
                             {
                                 users && users.map((item: itemProps, i) => {
+                                    const formattedDob = new Date(item.dob.date).toISOString().slice(0, 10)
+
                                     return <Grid key={i} item xs={6} sm={4} md={2} lg={2}>
                                         <Card sx={{
                                             padding: '8px',
@@ -153,7 +154,7 @@ const Users = () => {
                                                     {item.gender}
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {dateFormat(new Date(item.dob.date), 'dd-mm-yyyy')}
+                                                    {formattedDob}
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
                                                     {item.dob.age} age

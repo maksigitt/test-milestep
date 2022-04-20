@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {ChangeEvent} from 'react';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import Select, {SelectChangeEvent} from '@mui/material/Select';
 
 
 interface BasicSelectProps {
@@ -22,7 +22,7 @@ interface ItemProps {
 
 const BasicSelect = ({currentKey, currentUrl, list, gender, handleParams}: BasicSelectProps) => {
 
-    const handleChange = (event: any) => {
+    const handleChange = (event: SelectChangeEvent) => {
         handleParams({
             ...currentUrl,
             [currentKey]: event.target.value

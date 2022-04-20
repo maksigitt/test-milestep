@@ -1,0 +1,35 @@
+//https://medium.com/@pppped/extend-create-react-app-with-airbnbs-eslint-config-prettier-flow-and-react-testing-library-96627e9a9672
+{
+  "extends": [
+//    https://github.com/prettier/eslint-config-prettier/blob/main/CHANGELOG.md#version-800-2021-02-21
+    "react-app",
+    "airbnb",
+    "prettier"
+  ],
+  "plugins": [
+    "jsx-a11y",
+    "prettier"
+  ],
+  "parser": "react-scripts/node_modules/babel-eslint",
+//  https://github.com/yannickcr/eslint-plugin-react/tree/master/docs/rules
+  "rules": {
+    "semi": 0,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "no-unused-vars": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off",
+    "import/prefer-default-export": "off",
+    "prettier/prettier": [
+      "error", {
+        "semi": false
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"]
+      }
+    }
+  }
+}
