@@ -12,7 +12,6 @@ const Routers = () => {
         <Suspense fallback={null}>
             <Routes>
                 <Route path="/" element={<Users/>}/>
-                <Route path="/:url" element={<Users/>}/>
                 <Route path='*' element={<NotFound/>}/>
             </Routes>
         </Suspense>
